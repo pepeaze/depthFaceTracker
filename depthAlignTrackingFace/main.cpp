@@ -108,7 +108,7 @@ void salvaArquivoEquivalenciaLand(int frame){
 		else if(frame>999 && frame<10000)
 			ss << "FrameLAND_"<<frame;
 		string fileName = ss.str();
-		arq.open(fileName+".txt");
+		arq.open("D:\\MestradoUFES\\projetoMestrado\\depthAlignTrackingFace\\depthAndLandmarks\\"+fileName+".txt");
 				
 		for(size_t i = 0; i<pontosSh.size();i++){
 			if (i<=26)			  arq<<pontosSh[i].pX<<" "<<pontosSh[i].pY<<" "<<pontosSh[i].pZ<<" "<<"255"<<" "<<"0"<<" "<<"0"<<endl; // Contorno facial 26
@@ -134,7 +134,7 @@ void salvaArquivoEquivalenciaDepth(int frame){
 		else if(frame>999 && frame<10000)
 			ss << "FrameDEPTH_0"<<frame;
 		string fileName = ss.str();
-		arq.open(fileName+".txt");
+		arq.open("D:\\MestradoUFES\\projetoMestrado\\depthAlignTrackingFace\\depthAndLandmarks\\"+fileName+".txt");
 
 		int totFaceHeight = faceDim.y - (faceDim.height);
 		int totFaceWidth = faceDim.x - (faceDim.width);
@@ -405,8 +405,6 @@ void display(){
 	//salvaArquivoEquivalenciaDepth(pass); //salva arquivo com a nuvem de pontos
   
 	pass++;
-
-
 	pontosSh.clear();
 	pontosDe.clear();
 	imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1);
