@@ -1,0 +1,39 @@
+﻿Build started 10/06/2015 14:38:48.
+     1>Project "D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\depthAlignTrackingFace\depthAlignTrackingFace.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\depthAlignTrackingFace.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>d:\mestradoufes\kinect4windows\opencv\sources\install\install\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
+     1>d:\mestradoufes\projetomestrado\depthaligntrackingface\depthaligntrackingface\main.cpp(312): warning C4101: 'bLand' : unreferenced local variable
+     1>d:\mestradoufes\projetomestrado\depthaligntrackingface\depthaligntrackingface\main.cpp(312): warning C4101: 'gLand' : unreferenced local variable
+     1>d:\mestradoufes\projetomestrado\depthaligntrackingface\depthaligntrackingface\main.cpp(312): warning C4101: 'rLand' : unreferenced local variable
+       ManifestResourceCompile:
+         All outputs are up-to-date.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\Debug\depthAlignTrackingFace.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kinect10.lib glew32.lib glew32s.lib opencv_calib3d2410d.lib opencv_contrib2410d.lib opencv_core2410d.lib opencv_features2d2410d.lib opencv_flann2410d.lib opencv_gpu2410d.lib opencv_highgui2410d.lib opencv_imgproc2410d.lib opencv_legacy2410d.lib opencv_ml2410d.lib opencv_nonfree2410d.lib opencv_objdetect2410d.lib opencv_ocl2410d.lib opencv_photo2410d.lib opencv_stitching2410d.lib opencv_superres2410d.lib opencv_ts2410d.lib opencv_video2410d.lib opencv_videostab2410d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\depthAlignTrackingFace.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\Debug\depthAlignTrackingFace.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\Debug\depthAlignTrackingFace.lib" /MACHINE:X86 Debug\depthAlignTrackingFace.exe.embed.manifest.res
+         Debug\CLM.obj
+         Debug\FCheck.obj
+         Debug\FDet.obj
+         Debug\IO.obj
+         Debug\Patch.obj
+         Debug\PAW.obj
+         Debug\PDM.obj
+         Debug\Tracker.obj
+         Debug\main.obj
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\depthAlignTrackingFace.exe.embed.manifest" /manifest Debug\depthAlignTrackingFace.exe.intermediate.manifest
+         All outputs are up-to-date.
+       LinkEmbedManifest:
+         All outputs are up-to-date.
+         depthAlignTrackingFace.vcxproj -> D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\Debug\depthAlignTrackingFace.exe
+       FinalizeBuildStatus:
+         Deleting file "Debug\depthAlignTrackingFace.unsuccessfulbuild".
+         Touching "Debug\depthAlignTrackingFace.lastbuildstate".
+     1>Done Building Project "D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\depthAlignTrackingFace\depthAlignTrackingFace.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:24.54

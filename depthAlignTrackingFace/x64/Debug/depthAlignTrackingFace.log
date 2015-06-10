@@ -1,0 +1,48 @@
+﻿Build started 17/04/2015 14:05:39.
+     1>Project "D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\depthAlignTrackingFace\depthAlignTrackingFace.vcxproj" on node 2 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "x64\Debug\depthAlignTrackingFace.lastbuildstate".
+       InitializeBuildStatus:
+         Touching "x64\Debug\depthAlignTrackingFace.unsuccessfulbuild".
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt glut.cpp main.cpp
+         main.cpp
+     1>c:\opencv2410\build\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234) : see declaration of 'fopen'
+     1>C:\FaceTracker-master\FaceTracker-master\include\FaceTracker/Patch.h(85): warning C4267: 'return' : conversion from 'size_t' to 'int', possible loss of data
+     1>C:\FaceTracker-master\FaceTracker-master\include\FaceTracker/CLM.h(68): warning C4267: 'return' : conversion from 'size_t' to 'int', possible loss of data
+     1>main.cpp(56): warning C4800: 'INuiSensor *' : forcing value to bool 'true' or 'false' (performance warning)
+         glut.cpp
+         Generating Code...
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64\Debug\depthAlignTrackingFace.exe.embed.manifest.res" x64\Debug\depthAlignTrackingFace_manifest.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\x64\Debug\depthAlignTrackingFace.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kinect10.lib glew32.lib glew32s.lib C:\opencv2410\build\x86\vc10\lib\opencv_calib3d2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_contrib2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_core2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_features2d2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_flann2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_gpu2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_highgui2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_imgproc2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_legacy2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_ml2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_nonfree2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_objdetect2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_ocl2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_photo2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_stitching2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_superres2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_ts2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_video2410d.lib C:\opencv2410\build\x86\vc10\lib\opencv_videostab2410d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\depthAlignTrackingFace.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\x64\Debug\depthAlignTrackingFace.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\x64\Debug\depthAlignTrackingFace.lib" /MACHINE:X64 x64\Debug\depthAlignTrackingFace.exe.embed.manifest.res
+         x64\Debug\glut.obj
+         x64\Debug\main.obj
+     1>glut.obj : error LNK2019: unresolved external symbol __imp_glutSwapBuffers referenced in function "void __cdecl draw(void)" (?draw@@YAXXZ)
+     1>glut.obj : error LNK2019: unresolved external symbol __imp_glutMainLoop referenced in function "void __cdecl execute(void)" (?execute@@YAXXZ)
+     1>glut.obj : error LNK2019: unresolved external symbol __imp_glewInit referenced in function "bool __cdecl init(int,char * * const)" (?init@@YA_NHQEAPEAD@Z)
+     1>glut.obj : error LNK2019: unresolved external symbol __imp_glutIdleFunc referenced in function "bool __cdecl init(int,char * * const)" (?init@@YA_NHQEAPEAD@Z)
+     1>glut.obj : error LNK2019: unresolved external symbol __imp_glutDisplayFunc referenced in function "bool __cdecl init(int,char * * const)" (?init@@YA_NHQEAPEAD@Z)
+     1>glut.obj : error LNK2019: unresolved external symbol __imp_glutInitWindowSize referenced in function "bool __cdecl init(int,char * * const)" (?init@@YA_NHQEAPEAD@Z)
+     1>glut.obj : error LNK2019: unresolved external symbol __imp_glutInitDisplayMode referenced in function "bool __cdecl init(int,char * * const)" (?init@@YA_NHQEAPEAD@Z)
+     1>glut.obj : error LNK2019: unresolved external symbol __imp___glutInitWithExit referenced in function glutInit_ATEXIT_HACK
+     1>glut.obj : error LNK2019: unresolved external symbol __imp___glutCreateWindowWithExit referenced in function glutCreateWindow_ATEXIT_HACK
+     1>main.obj : error LNK2019: unresolved external symbol __imp_NuiCreateSensorByIndex referenced in function "bool __cdecl initKinect(void)" (?initKinect@@YA_NXZ)
+     1>main.obj : error LNK2019: unresolved external symbol __imp_NuiGetSensorCount referenced in function "bool __cdecl initKinect(void)" (?initKinect@@YA_NXZ)
+     1>main.obj : error LNK2019: unresolved external symbol __imp_NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution referenced in function "void __cdecl getDepthData(unsigned char *)" (?getDepthData@@YAXPEAE@Z)
+     1>main.obj : error LNK2001: unresolved external symbol __imp___glewUnmapBuffer
+     1>main.obj : error LNK2001: unresolved external symbol __imp___glewMapBuffer
+     1>main.obj : error LNK2001: unresolved external symbol __imp___glewBufferData
+     1>main.obj : error LNK2001: unresolved external symbol __imp___glewBindBuffer
+     1>main.obj : error LNK2001: unresolved external symbol __imp___glewGenBuffers
+     1>main.obj : error LNK2019: unresolved external symbol "void __cdecl cv::fastFree(void *)" (?fastFree@cv@@YAXPEAX@Z) referenced in function "public: __cdecl cv::Mat::~Mat(void)" (??1Mat@cv@@QEAA@XZ)
+     1>main.obj : error LNK2019: unresolved external symbol "public: void __cdecl cv::Mat::deallocate(void)" (?deallocate@Mat@cv@@QEAAXXZ) referenced in function "public: void __cdecl cv::Mat::release(void)" (?release@Mat@cv@@QEAAXXZ)
+     1>main.obj : error LNK2019: unresolved external symbol "int __cdecl cv::_interlockedExchangeAdd(int *,int)" (?_interlockedExchangeAdd@cv@@YAHPEAHH@Z) referenced in function "public: void __cdecl cv::Mat::release(void)" (?release@Mat@cv@@QEAAXXZ)
+     1>D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\x64\Debug\depthAlignTrackingFace.exe : fatal error LNK1120: 20 unresolved externals
+     1>Done Building Project "D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\depthAlignTrackingFace\depthAlignTrackingFace.vcxproj" (rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:03.34
