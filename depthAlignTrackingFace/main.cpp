@@ -405,6 +405,8 @@ void display(){
 	//salvaArquivoEquivalenciaDepth(pass); //salva arquivo com a nuvem de pontos
   
 	pass++;
+
+
 	pontosSh.clear();
 	pontosDe.clear();
 	imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1);
