@@ -84,7 +84,10 @@ struct pontosDepth{
 	float pZ;
 	float r;
 	float g;
-	float b;};
+	float b;
+	float rN;
+	float gN;
+	float bN;};
 
 
 pontosShape pShape;
@@ -235,7 +238,6 @@ void detectaFace(Mat frame){
 	
 }
 
-//void createLandMarkImage(){
 void createLandMarkImage(Mat imageDosLandmarks){
 
 	int i, n = shapeG.rows/2;
@@ -247,6 +249,32 @@ void createLandMarkImage(Mat imageDosLandmarks){
 		imageDosLandmarks.at<uchar>(p1.y,p1.x) = 255;
 	}
 	//imshow("out", imageDosLandmarks);
+
+}
+
+void calcMinMaxValues(float &xMin, float &xMax, float &yMin, float &yMax, float &zMin, float &zMax){ //calcula os valores minimos e maximo do vetor de landmarks de pontos 3D
+
+	xMin = pontosSh[0].pX;
+	xMax = pontosSh[0].pX;
+	yMin = pontosSh[0].pY;
+	yMax = pontosSh[0].pY;
+	zMin = pontosSh[0].pZ;
+	zMax = pontosSh[0].pZ;
+
+	for (size_t i=0; i<pontosSh.size(); i++){
+		if(pontosSh[i].pX<xMin)
+			xMin = pontosSh[i].pX;
+		if(pontosSh[i].pY<yMin)
+			yMin = pontosSh[i].pY;
+		if(pontosSh[i].pZ<zMin)
+			zMin = pontosSh[i].pZ;
+		if(pontosSh[i].pX>xMax)
+			xMax = pontosSh[i].pX;
+		if(pontosSh[i].pY>yMax)
+			yMax = pontosSh[i].pY;
+		if(pontosSh[i].pZ>zMin)
+			zMax = pontosSh[i].pZ;
+	}
 
 }
 
@@ -294,22 +322,59 @@ void retrievePointCloudMap(Mat &depth,Mat &pointCloud_XYZ){
 		}
 	}
 	
-} 
+}
 
-void drawPointCloud(Mat &rgbImage,Mat &pointCloud_XYZ, Mat &shapis){
-    static int x,y;
+void drawPointCloud(){
 
     glPointSize(1);
     glBegin(GL_POINTS);
 
-		uchar *p = (unsigned char*)(rgbImage.data); //ponteiro para os dados da imagem RGB
-		uchar *land = (unsigned char*)(shapis.data); //ponteiro para os dados da imagem RGB
+	for(size_t i=0; i<pontosDe.size();i++){
+		glColor3f(pontosDe[i].rN,pontosDe[i].gN,pontosDe[i].bN);
+		glVertex3f(pontosDe[i].pX,pontosDe[i].pY,pontosDe[i].pZ);
+	
+	}
+
+    glEnd();	
+}
+
+void getLandmarks3D(Mat &pointCloud_XYZ, Mat &shapis){
+    static int x,y;
+			
+	uchar *land = (unsigned char*)(shapis.data); //ponteiro para os dados da imagem RGB
+	Point3f *point = (Point3f*)pointCloud_XYZ.data; //ponteiro para os dados de profundidade XYZ
+		
+	LONG colorX,colorY; //ponto na matriz onde esta determinada cor
+	int cont = 0;
+
+	for(y = 0;y < pointCloud_XYZ.rows;y++){
+		for(x = 0;x < pointCloud_XYZ.cols;x++,point++){				
+				
+			NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
+				
+			if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){	
+						
+				if(shapis.at<uchar>(colorY,colorX) == 255){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
+					pShape.pX = point->x;
+					pShape.pY = point->y;
+					pShape.pZ = point->z;
+					pontosSh.push_back(pShape);
+					cont++;
+				}
+			}
+		}
+	}
+}
+
+void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax){
+		static int x,y;
+
+    	uchar *p = (unsigned char*)(rgbImage.data); //ponteiro para os dados da imagem RGB
 		Point3f *point = (Point3f*)pointCloud_XYZ.data; //ponteiro para os dados de profundidade XYZ
 		
 		LONG colorX,colorY; //ponto na matriz onde esta determinada cor
-		float rN,gN,bN;
+		float rN,gN,bN; //cores entre 0 e 1
 		float r,g,b;
-		float rLand, gLand, bLand;
 		int cont = 0;
 
 		for(y = 0;y < pointCloud_XYZ.rows;y++){
@@ -317,44 +382,31 @@ void drawPointCloud(Mat &rgbImage,Mat &pointCloud_XYZ, Mat &shapis){
 				
 				NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
 				
-				if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){	
-						
-					if(shapis.at<uchar>(colorY,colorX) == 255){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
-						pShape.pX = point->x;
-						pShape.pY = point->y;
-						pShape.pZ = point->z;
-						pontosSh.push_back(pShape);
-						cont++;
-					}
-				}				
+				if(0 <= colorX && colorX <= rgbImage.cols && 0 <= colorY && colorY <= rgbImage.rows){ 
+					if(point->x >= xMin+(xMin/2.5) && point->x <= xMax+(xMax/2.5) &&
+					   point->y >= yMin+(yMin/2.5) && point->y <= yMax+(yMax/2.5) &&
+					   point->z >= zMin+(zMin/2.5) && point->z <= zMax+(zMax/2.5)){	//se estiver dentro do limite+offset, salvo no vetor					
 
-				if(0 <= colorX && colorX <= rgbImage.cols && 0 <= colorY && colorY <= rgbImage.rows){						
-
-					r = (p[colorY * rgbImage.step + colorX * rgbImage.channels()])  ;//pega o pixel vermelho da imagem rgb
-					g = (p[colorY * rgbImage.step + colorX * rgbImage.channels()+1]);//pega o pixel verde da imagem rgb
-					b = (p[colorY * rgbImage.step + colorX * rgbImage.channels()+2]);//pega o pixel azul da imagem rgb
-				
-					rN = r/255;//converte o valor do pixel vermelho para valores entre 0 e 1
-					gN = g/255;//converte o valor do pixel verde para valores entre 0 e 1
-					bN = b/255;//converte o valor do pixel azul para valores entre 0 e 1
-
-					glColor3f(rN,gN,bN);
-					glVertex3f(point->x,point->y,point->z); //desenha os pontos na tela
-				}				
-
-				if(point->z<1.1){//salva os pontos e respectivas cores no vetor de pontos	
-					pDepth.pX = point->x;
-					pDepth.pY = point->y;
-					pDepth.pZ = point->z;
-					pDepth.r = r;
-					pDepth.g = g;
-					pDepth.b = b;
-					pontosDe.push_back(pDepth);
+						r = (p[colorY * rgbImage.step + colorX * rgbImage.channels()])  ;//pega o pixel vermelho da imagem rgb
+						g = (p[colorY * rgbImage.step + colorX * rgbImage.channels()+1]);//pega o pixel verde da imagem rgb
+						b = (p[colorY * rgbImage.step + colorX * rgbImage.channels()+2]);//pega o pixel azul da imagem rgb				
+						rN = r/255;//converte o valor do pixel vermelho para valores entre 0 e 1
+						gN = g/255;//converte o valor do pixel verde para valores entre 0 e 1
+						bN = b/255;//converte o valor do pixel azul para valores entre 0 e 1
+						pDepth.pX = point->x;
+						pDepth.pY = point->y;
+						pDepth.pZ = point->z;
+						pDepth.r = r;
+						pDepth.g = g;
+						pDepth.b = b;
+						pDepth.rN = rN;
+						pDepth.gN = gN;
+						pDepth.bN = bN;
+						pontosDe.push_back(pDepth);
+					}				
 				}
 			}
 		}
-
-    glEnd();	
 }
 
 void polarview(){
@@ -373,7 +425,9 @@ void display(){
     // Reset the coordinate system before modifying
     glLoadIdentity(); 
     glEnable(GL_DEPTH_TEST); 
-    gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0);   
+    gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0);
+
+	float xMin=0, xMax=0, yMin=0, yMax=0, zMin=0, zMax=0;
 
 	if(GetImage(image,m_hNextImageFrameEvent,m_pImageStreamHandle)==-1) //retorna imagem RGB
 		return;
@@ -392,27 +446,31 @@ void display(){
 
 	polarview();
 
-    //imshow("depth",depthPure);
-	
-	//converte de BGR para RGB
-    cvtColor(image,image,CV_RGBA2BGRA);  
+   	//converte de BGR para RGB
+    cvtColor(image,image,CV_RGBA2BGRA);
 
-    //desenha a nuvem de pontos
-	drawPointCloud(image,pointCloud_XYZ, imageDosLandmarks);
+	getLandmarks3D(pointCloud_XYZ, imageDosLandmarks);
+	if(pontosSh.size()>0)
+		calcMinMaxValues(xMin, xMax, yMin, yMax, zMin, zMax);
+	printf("\nFrame%d: %f, %f, %f, %f, %f, %f\n\n", pass,xMin, xMax, yMin, yMax, zMin, zMax);
+	getPointCloud3D(pointCloud_XYZ, image, xMin, xMax, yMin, yMax, zMin, zMax);
 
+	//desenha a nuvem de pontos
+	drawPointCloud();
 	
-	salvaArquivoEquivalenciaLand(pass); //salva arquivo com os landmarks
-	//salvaArquivoEquivalenciaDepth(pass); //salva arquivo com a nuvem de pontos
+	if(pontosDe.size()>0){//so salva os arquivos se o vetor de pontos estiver preenchido
+		salvaArquivoEquivalenciaLand(pass); //salva arquivo com os landmarks
+		salvaArquivoEquivalenciaDepth(pass); //salva arquivo com a nuvem de pontos
+	}
   
-	pass++;
+	pass++; //contador de frame
 	pontosSh.clear();
 	pontosDe.clear();
-	imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1);
  
     glFlush();
     glutSwapBuffers();
 	fim = clock();
-	printf("Frame%d: %lf\n",pass, ((double)(fim - inicio)/CLOCKS_PER_SEC));
+	printf("Frame%d: %lf segundos\n",pass, ((double)(fim - inicio)/CLOCKS_PER_SEC));
 }
 
 int init(){	
