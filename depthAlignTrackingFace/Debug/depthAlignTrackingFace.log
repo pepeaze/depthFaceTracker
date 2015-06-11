@@ -1,4 +1,4 @@
-﻿Build started 11/06/2015 14:01:16.
+﻿Build started 11/06/2015 15:30:58.
      1>Project "D:\MestradoUFES\projetoMestrado\depthAlignTrackingFace\depthAlignTrackingFace\depthAlignTrackingFace.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\depthAlignTrackingFace.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -33,4 +33,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.64
+Time Elapsed 00:00:02.41

@@ -238,6 +238,7 @@ void detectaFace(Mat frame){
 	
 }
 
+//void createLandMarkImage(){
 void createLandMarkImage(Mat imageDosLandmarks){
 
 	int i, n = shapeG.rows/2;
@@ -252,7 +253,7 @@ void createLandMarkImage(Mat imageDosLandmarks){
 
 }
 
-void calcMinMaxValues(float &xMin, float &xMax, float &yMin, float &yMax, float &zMin, float &zMax){ //calcula os valores minimos e maximo do vetor de landmarks de pontos 3D
+void calcMinMaxValues(float &xMin, float &xMax, float &yMin, float &yMax, float &zMin, float &zMax){
 
 	xMin = pontosSh[0].pX;
 	xMax = pontosSh[0].pX;
@@ -373,7 +374,7 @@ void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, 
 		Point3f *point = (Point3f*)pointCloud_XYZ.data; //ponteiro para os dados de profundidade XYZ
 		
 		LONG colorX,colorY; //ponto na matriz onde esta determinada cor
-		float rN,gN,bN; //cores entre 0 e 1
+		float rN,gN,bN; //RGB entre 0 e 1
 		float r,g,b;
 		int cont = 0;
 
@@ -383,9 +384,10 @@ void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, 
 				NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
 				
 				if(0 <= colorX && colorX <= rgbImage.cols && 0 <= colorY && colorY <= rgbImage.rows){ 
-					if(point->x >= xMin+(xMin/2.5) && point->x <= xMax+(xMax/2.5) &&
+					if(point->x!=0 && point->y!=0 && point->z !=0 &&
+						point->x >= xMin+(xMin/2.5) && point->x <= xMax+(xMax/2.5) &&
 					   point->y >= yMin+(yMin/2.5) && point->y <= yMax+(yMax/2.5) &&
-					   point->z >= zMin+(zMin/2.5) && point->z <= zMax+(zMax/2.5)){	//se estiver dentro do limite+offset, salvo no vetor					
+					   point->z >= zMin+(zMin/2.5) && point->z <= zMax+(zMax/2.5)){	//se estiver dentro do limite+offset e sem pontos com X,Y,Z=0, salvo no vetor					
 
 						r = (p[colorY * rgbImage.step + colorX * rgbImage.channels()])  ;//pega o pixel vermelho da imagem rgb
 						g = (p[colorY * rgbImage.step + colorX * rgbImage.channels()+1]);//pega o pixel verde da imagem rgb
@@ -407,6 +409,8 @@ void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, 
 				}
 			}
 		}
+
+    glEnd();	
 }
 
 void polarview(){
@@ -446,19 +450,20 @@ void display(){
 
 	polarview();
 
-   	//converte de BGR para RGB
+    //imshow("depth",depthPure);
+	
+	//converte de BGR para RGB
     cvtColor(image,image,CV_RGBA2BGRA);
 
 	getLandmarks3D(pointCloud_XYZ, imageDosLandmarks);
-	if(pontosSh.size()>0)
+	if(pontosSh.size()>1)
 		calcMinMaxValues(xMin, xMax, yMin, yMax, zMin, zMax);
 	printf("\nFrame%d: %f, %f, %f, %f, %f, %f\n\n", pass,xMin, xMax, yMin, yMax, zMin, zMax);
 	getPointCloud3D(pointCloud_XYZ, image, xMin, xMax, yMin, yMax, zMin, zMax);
 
-	//desenha a nuvem de pontos
 	drawPointCloud();
-	
-	if(pontosDe.size()>0){//so salva os arquivos se o vetor de pontos estiver preenchido
+
+	if(pontosDe.size()>0){//so salva os arquivos se a nuvem de pontos estiver preenchida
 		salvaArquivoEquivalenciaLand(pass); //salva arquivo com os landmarks
 		salvaArquivoEquivalenciaDepth(pass); //salva arquivo com a nuvem de pontos
 	}
@@ -466,6 +471,7 @@ void display(){
 	pass++; //contador de frame
 	pontosSh.clear();
 	pontosDe.clear();
+	imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1); //zero a matriz de landmarks para começar outro frame
  
     glFlush();
     glutSwapBuffers();
