@@ -70,8 +70,7 @@ Mat image(KINECT_IMAGE_HEIGHT,KINECT_IMAGE_WIDTH,CV_8UC4);
 Mat imageComLand(KINECT_IMAGE_HEIGHT,KINECT_IMAGE_WIDTH,CV_8UC4);
 Mat imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1);
 Mat depthPure(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_16UC1);
-Mat DepthinRGB(KINECT_IMAGE_HEIGHT,KINECT_IMAGE_WIDTH,CV_16UC1);
-Mat pointCloud_XYZ(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_32FC3,cv::Scalar::all(0));
+Mat pointCloud_XYZ(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_32FC3,cv::Scalar::all(0));\
 
 
 struct pontosShape{
@@ -236,7 +235,8 @@ void detectaFace(Mat frame){
 	
 }
 
-void createLandMarkImage(){
+//void createLandMarkImage(){
+void createLandMarkImage(Mat imageDosLandmarks){
 
 	int i, n = shapeG.rows/2;
 	cv::Point p1;
@@ -319,7 +319,7 @@ void drawPointCloud(Mat &rgbImage,Mat &pointCloud_XYZ, Mat &shapis){
 				
 				if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){	
 						
-					if(shapis.at<uchar>(colorY,colorX) == 255){
+					if(shapis.at<uchar>(colorY,colorX) == 255){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
 						pShape.pX = point->x;
 						pShape.pY = point->y;
 						pShape.pZ = point->z;
@@ -385,7 +385,7 @@ void display(){
 
 	detectaFace(imageComLand); //detecto os landmarks da face(o que me interessa é shapeG(os pontos))
 
-	createLandMarkImage(); //converto shapeG para imagem
+	createLandMarkImage(imageDosLandmarks); //converto shapeG para imagem
 	
 	//transforma os pontos de depth em uma nuvem de pontos 3D
     retrievePointCloudMap(depthPure,pointCloud_XYZ);		
