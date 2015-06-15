@@ -12,17 +12,20 @@
 #include <NuiApi.h>
 #include <NuiImageCamera.h>
 #include <NuiSensor.h>
+#include <FaceTrackLib.h>
 
 #define KINECT_IMAGE_WIDTH 640
 #define KINECT_IMAGE_HEIGHT 480
 #define KINECT_DEPTH_WIDTH 640
 #define KINECT_DEPTH_HEIGHT 480
 
+IFTFaceTracker* m_pFaceTracker;
 HANDLE m_hNextImageFrameEvent;
 HANDLE m_hNextDepthFrameEvent;
 HANDLE m_pImageStreamHandle;
 HANDLE m_pDepthStreamHandle;
 INuiSensor* pSensor;
+INuiCoordinateMapper* pMapper;
 /**********************/
 
 /*COISAS OPENGL*/
@@ -70,7 +73,8 @@ Mat image(KINECT_IMAGE_HEIGHT,KINECT_IMAGE_WIDTH,CV_8UC4);
 Mat imageComLand(KINECT_IMAGE_HEIGHT,KINECT_IMAGE_WIDTH,CV_8UC4);
 Mat imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1);
 Mat depthPure(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_16UC1);
-Mat pointCloud_XYZ(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_32FC3,cv::Scalar::all(0));\
+Mat imageAcertada(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_32FC3,cv::Scalar::all(0));
+Mat pointCloud_XYZ(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_32FC3,cv::Scalar::all(0));
 
 
 struct pontosShape{
@@ -96,6 +100,8 @@ vector<pontosShape> pontosSh;
 vector<pontosDepth> pontosDe;
 
 cv::Mat shapeG,conG,triG,visiG;
+
+int vet[640*480];
 
 void salvaArquivoEquivalenciaLand(int frame){
 		
@@ -241,7 +247,8 @@ void detectaFace(Mat frame){
 //void createLandMarkImage(){
 void createLandMarkImage(Mat imageDosLandmarks){
 
-	int i, n = shapeG.rows/2;
+	int i;
+	int n = shapeG.rows/2;
 	cv::Point p1;
  
 	for(i = 0; i < n; i++){
@@ -308,21 +315,19 @@ int GetImage(cv::Mat &image,HANDLE frameEvent,HANDLE streamHandle){
 }
 
 void retrievePointCloudMap(Mat &depth,Mat &pointCloud_XYZ){
-
+	 
     unsigned short* dp = (unsigned short*)depth.data; //ponteiro para os dados de profundidade
 	Point3f *point = (Point3f *)pointCloud_XYZ.data; //ponteiro para os dados de profundidade em 3d
-
+	
 	for(int y = 0;y < depth.rows;y++){
 		for(int x = 0;x < depth.cols;x++, dp++,point++){
-			Vector4 RealPoints = NuiTransformDepthImageToSkeleton(x,y,*dp, NUI_IMAGE_RESOLUTION_640x480); //conversão dos pontos 2D p/ 3d
-			
+			Vector4 RealPoints = NuiTransformDepthImageToSkeleton(x,y,*dp, NUI_IMAGE_RESOLUTION_640x480); //conversão dos pontos 2D p/ 3d		
 			point->x = RealPoints.x/RealPoints.w;//inserindo valor de x em point
 			point->y = RealPoints.y/RealPoints.w;//inserindo valor de y em point
 			point->z = RealPoints.z/RealPoints.w;//inserindo valor de z em point
 
 		}
-	}
-	
+	}	
 }
 
 void drawPointCloud(){
@@ -336,35 +341,85 @@ void drawPointCloud(){
 	
 	}
 
-    glEnd();	
+    glEnd();
+
+	glPointSize(5);
+    glBegin(GL_POINTS);
+
+	for(size_t i=0; i<pontosSh.size();i++){
+		glColor3f(1,0,0);
+		glVertex3f(pontosSh[i].pX,pontosSh[i].pY,pontosSh[i].pZ);
+	
+	}
+
+    glEnd();
 }
 
+//void mapColorFrame(){
+//
+//	uchar *imagem = (unsigned char*)(image.data);
+//	ushort *imagemAcertada = (unsigned short*)(imageAcertada.data);
+//	ushort *profundidade = (unsigned short*)(depthPure.data);
+//
+//
+//	NUI_COLOR_IMAGE_POINT* colorPoints = new NUI_COLOR_IMAGE_POINT[640 * 480]; //color points
+//    NUI_DEPTH_IMAGE_PIXEL* depthPoints = new NUI_DEPTH_IMAGE_PIXEL[640 * 480]; // depth pixel
+//
+//	pSensor->NuiGetCoordinateMapper(&pMapper);
+//
+//	pMapper->MapDepthFrameToColorFrame( NUI_IMAGE_RESOLUTION_640x480,
+//		                                640 * 480,
+//										depthPoints,
+//										NUI_IMAGE_TYPE_COLOR,
+//										NUI_IMAGE_RESOLUTION_640x480,
+//										640 * 480,
+//										colorPoints );
+//
+//	for (int i = 0; i < 640 * 480; i++)
+//		if (colorPoints[i].x >0 && colorPoints[i].x < 640 && colorPoints[i].y>0 &&    colorPoints[i].y < 480)
+//            *(imagemAcertada + colorPoints[i].x + colorPoints[i].y*640) = *(profundidade + i );
+//
+//	imshow("outlat", imageAcertada);
+//	delete colorPoints;
+//    delete depthPoints;
+//
+//}
+
+
 void getLandmarks3D(Mat &pointCloud_XYZ, Mat &shapis){
+
     static int x,y;
 			
 	uchar *land = (unsigned char*)(shapis.data); //ponteiro para os dados da imagem RGB
 	Point3f *point = (Point3f*)pointCloud_XYZ.data; //ponteiro para os dados de profundidade XYZ
 		
-	LONG colorX,colorY; //ponto na matriz onde esta determinada cor
+	LONG colorX,colorY, antX, antY; //ponto na matriz onde esta determinada cor
 	int cont = 0;
+
+	for(int i=0; i<640*480; i++)
+		vet[i] = 0;
 
 	for(y = 0;y < pointCloud_XYZ.rows;y++){
 		for(x = 0;x < pointCloud_XYZ.cols;x++,point++){				
 				
 			NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
-				
-			if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){	
-						
-				if(shapis.at<uchar>(colorY,colorX) == 255){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
-					pShape.pX = point->x;
-					pShape.pY = point->y;
-					pShape.pZ = point->z;
-					pontosSh.push_back(pShape);
-					cont++;
+			if(colorX!=NULL && colorY!=NULL){
+				if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){	
+					/*if(vet[colorY*shapis.cols+colorX]==1)
+						cout<<"ja passei aqui"<<endl;*/
+					if(shapis.at<uchar>(colorY,colorX) == 255 && vet[colorY*shapis.cols+colorX]!=1){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
+						vet[colorY*shapis.cols+colorX] = 1;
+						pShape.pX = point->x;
+						pShape.pY = point->y;
+						pShape.pZ = point->z;
+						pontosSh.push_back(pShape);
+						cont++;
+					}
 				}
 			}
 		}
 	}
+	cout<<cont<<endl;
 }
 
 void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax){
@@ -378,17 +433,20 @@ void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, 
 		float r,g,b;
 		int cont = 0;
 
+		for(int i=0; i<640*480; i++)
+			vet[i] = 0;
+
 		for(y = 0;y < pointCloud_XYZ.rows;y++){
 			for(x = 0;x < pointCloud_XYZ.cols;x++,point++){				
 				
 				NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
 				
 				if(0 <= colorX && colorX <= rgbImage.cols && 0 <= colorY && colorY <= rgbImage.rows){ 
-					if(point->x!=0 && point->y!=0 && point->z !=0 &&
+					if(point->x!=0 && point->y!=0 && point->z !=0 && vet[colorY*rgbImage.cols+colorX]!=1 &&
 						point->x >= xMin+(xMin/2.5) && point->x <= xMax+(xMax/2.5) &&
 					   point->y >= yMin+(yMin/2.5) && point->y <= yMax+(yMax/2.5) &&
 					   point->z >= zMin+(zMin/2.5) && point->z <= zMax+(zMax/2.5)){	//se estiver dentro do limite+offset e sem pontos com X,Y,Z=0, salvo no vetor					
-
+						vet[colorY*rgbImage.cols+colorX] = 1;
 						r = (p[colorY * rgbImage.step + colorX * rgbImage.channels()])  ;//pega o pixel vermelho da imagem rgb
 						g = (p[colorY * rgbImage.step + colorX * rgbImage.channels()+1]);//pega o pixel verde da imagem rgb
 						b = (p[colorY * rgbImage.step + colorX * rgbImage.channels()+2]);//pega o pixel azul da imagem rgb				
@@ -439,6 +497,8 @@ void display(){
 	if(GetImage(depthPure,m_hNextDepthFrameEvent,m_pDepthStreamHandle)==-1) //retorna image de profundidade
 		return;
 
+	//mapColorFrame();
+
 	imageComLand = image.clone();
 
 	detectaFace(imageComLand); //detecto os landmarks da face(o que me interessa é shapeG(os pontos))
@@ -456,9 +516,9 @@ void display(){
     cvtColor(image,image,CV_RGBA2BGRA);
 
 	getLandmarks3D(pointCloud_XYZ, imageDosLandmarks);
-	if(pontosSh.size()>1)
+	if(pontosSh.size()>0)
 		calcMinMaxValues(xMin, xMax, yMin, yMax, zMin, zMax);
-	printf("\nFrame%d: %f, %f, %f, %f, %f, %f\n\n", pass,xMin, xMax, yMin, yMax, zMin, zMax);
+	//printf("\nFrame%d: %f, %f, %f, %f, %f, %f\n\n", pass,xMin, xMax, yMin, yMax, zMin, zMax);
 	getPointCloud3D(pointCloud_XYZ, image, xMin, xMax, yMin, yMax, zMin, zMax);
 
 	drawPointCloud();
@@ -472,11 +532,11 @@ void display(){
 	pontosSh.clear();
 	pontosDe.clear();
 	imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1); //zero a matriz de landmarks para começar outro frame
- 
+	imageAcertada = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC4); //zero a matriz de landmarks para começar outro frame
     glFlush();
     glutSwapBuffers();
 	fim = clock();
-	printf("Frame%d: %lf segundos\n",pass, ((double)(fim - inicio)/CLOCKS_PER_SEC));
+	//printf("Frame%d: %lf segundos\n",pass, ((double)(fim - inicio)/CLOCKS_PER_SEC));
 }
 
 int init(){	
