@@ -372,7 +372,7 @@ void preProcLandmarks(Mat &shapis){
 
 	for(i=0; i<n; i++){
 		p1 = cv::Point(shapeG.at<double>(i,0),shapeG.at<double>(i+n,0));
-		vetLandMarks[p1.y*shapis.cols+p1.x] = i;
+		vetLandMarks[p1.y*shapis.cols+p1.x] = i; //adiciono "i" a posicao correspondente ao pixel na imagem no vetor de landmarks
 	}
 
 }
@@ -396,15 +396,11 @@ void getLandmarks3D(Mat &pointCloud_XYZ, Mat &shapis){
 			NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
 			if(colorX!=NULL && colorY!=NULL){
 				if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){
-					
-					//if(p1.y==colorY && p1.x == colorX){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
-					if(shapis.at<uchar>(colorY,colorX) == 255 && vet[colorY*shapis.cols+colorX]!=1){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
+					if(shapis.at<uchar>(colorY,colorX) == 255 && vet[colorY*shapis.cols+colorX]!=1){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d e verifico se o mesmo ja esta marcado
 						int i = 0;
 						int n = shapeG.rows/2;
 						cv::Point p1;
-						p1 = cv::Point(shapeG.at<double>(i,0),shapeG.at<double>(i+n,0));
-					//if(vetLandMarks[colorY*image.cols+colorX] == 1 && vet[colorY*shapis.cols+colorX]!=1){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
-						
+						p1 = cv::Point(shapeG.at<double>(i,0),shapeG.at<double>(i+n,0));						
 						k = vetLandMarks[colorY*shapis.cols+colorX];
 						vet[colorY*shapis.cols+colorX] = 1;
 						/*pShape.pX = point->x;
@@ -442,8 +438,6 @@ void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, 
 
 		for(y = 0;y < pointCloud_XYZ.rows;y++){
 			for(x = 0;x < pointCloud_XYZ.cols;x++,point++){				
-		/*for(y = faceDim.y;y < faceDim.y+faceDim.height;y++){
-			for(x = faceDim.x;x < faceDim.x+faceDim.width;x++,point++){	*/
 				NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
 				
 				if(0 <= colorX && colorX <= rgbImage.cols && 0 <= colorY && colorY <= rgbImage.rows){ 
@@ -520,7 +514,7 @@ void display(){
 	//converte de BGR para RGB
     cvtColor(image,image,CV_RGBA2BGRA);
 
-	preProcLandmarks(imageDosLandmarks);
+	preProcLandmarks(imageDosLandmarks); //preencho o vetLandMarks com as suas respectivas posicoes em shapeG
 
 	getLandmarks3D(pointCloud_XYZ, imageDosLandmarks);
 	//if(pontosSh.size()>0)
