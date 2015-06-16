@@ -96,12 +96,15 @@ struct pontosDepth{
 
 pontosShape pShape;
 pontosDepth pDepth;
-vector<pontosShape> pontosSh;
+struct pontosShape pontosSh[66];
+
+//vector<pontosShape> pontosSh(66);
 vector<pontosDepth> pontosDe;
 
 cv::Mat shapeG,conG,triG,visiG;
 
 int vet[640*480];
+int vetLandMarks[640*480];
 
 void salvaArquivoEquivalenciaLand(int frame){
 		
@@ -118,7 +121,8 @@ void salvaArquivoEquivalenciaLand(int frame){
 		string fileName = ss.str();
 		arq.open("D:\\MestradoUFES\\projetoMestrado\\depthAlignTrackingFace\\depthAndLandmarks\\"+fileName+".txt");
 				
-		for(size_t i = 0; i<pontosSh.size();i++){
+		//for(size_t i = 0; i<pontosSh.size();i++){
+		for(int i = 0; i<66;i++){
 			if (i<=26)			  arq<<pontosSh[i].pX<<" "<<pontosSh[i].pY<<" "<<pontosSh[i].pZ<<" "<<"255"<<" "<<"0"<<" "<<"0"<<endl; // Contorno facial 26
 			else if (i>26&&i<=30) arq<<pontosSh[i].pX<<" "<<pontosSh[i].pY<<" "<<pontosSh[i].pZ<<" "<<"0"<<" "<<"128"<<" "<<"0"<<endl; // Nariz 4
 			else if (i>30&&i<=35) arq<<pontosSh[i].pX<<" "<<pontosSh[i].pY<<" "<<pontosSh[i].pZ<<" "<<"0"<<" "<<"255"<<" "<<"0"<<endl; // Parte abaixo nariz 5
@@ -173,12 +177,12 @@ void Draw(cv::Mat &image,cv::Mat &shape,cv::Mat &con,cv::Mat &tri,cv::Mat &visi)
     p1 = cv::Point(shape.at<double>(i,0),shape.at<double>(i+n,0));
 	//cout<<i<<"  "<<p1.x<<"    "<<p1.y<<endl;
 
-	c = CV_RGB(0,255,0);
-    //if (i<=26) c = CV_RGB(255,0,0);			   // Contorno facial 26
-    //else if (i>26&&i<=30) c = CV_RGB(0,128,0); // Nariz 4
-    //else if (i>30&&i<=35) c = CV_RGB(0,255,0); // Parte abaixo nariz 5
-    //else if (i>35&&i<=47) c = CV_RGB(0,0,255); // olhos 12
-    //else c = CV_RGB(0,0,128);                  // Boca 18
+	//c = CV_RGB(0,255,0);
+    if (i<=26) c = CV_RGB(255,0,0);			   // Contorno facial 26
+    else if (i>26&&i<=30) c = CV_RGB(0,128,0); // Nariz 4
+    else if (i>30&&i<=35) c = CV_RGB(0,255,0); // Parte abaixo nariz 5
+    else if (i>35&&i<=47) c = CV_RGB(0,0,255); // olhos 12
+    else c = CV_RGB(0,0,128);                  // Boca 18
 
     cv::circle(image,p1,1,c,2);
   }
@@ -250,7 +254,7 @@ void createLandMarkImage(Mat imageDosLandmarks){
 	int i;
 	int n = shapeG.rows/2;
 	cv::Point p1;
- 
+
 	for(i = 0; i < n; i++){
 		
 		p1 = cv::Point(shapeG.at<double>(i,0),shapeG.at<double>(i+n,0));
@@ -269,7 +273,8 @@ void calcMinMaxValues(float &xMin, float &xMax, float &yMin, float &yMax, float 
 	zMin = pontosSh[0].pZ;
 	zMax = pontosSh[0].pZ;
 
-	for (size_t i=0; i<pontosSh.size(); i++){
+	//for (size_t i=0; i<pontosSh.size(); i++){
+	for (int i=0; i<66; i++){
 		if(pontosSh[i].pX<xMin)
 			xMin = pontosSh[i].pX;
 		if(pontosSh[i].pY<yMin)
@@ -332,7 +337,7 @@ void retrievePointCloudMap(Mat &depth,Mat &pointCloud_XYZ){
 
 void drawPointCloud(){
 
-    glPointSize(1);
+    glPointSize(3);
     glBegin(GL_POINTS);
 
 	for(size_t i=0; i<pontosDe.size();i++){
@@ -346,7 +351,8 @@ void drawPointCloud(){
 	glPointSize(5);
     glBegin(GL_POINTS);
 
-	for(size_t i=0; i<pontosSh.size();i++){
+	//for(size_t i=0; i<pontosSh.size();i++){
+	for(int i=0; i<66;i++){
 		glColor3f(1,0,0);
 		glVertex3f(pontosSh[i].pX,pontosSh[i].pY,pontosSh[i].pZ);
 	
@@ -355,36 +361,21 @@ void drawPointCloud(){
     glEnd();
 }
 
-//void mapColorFrame(){
-//
-//	uchar *imagem = (unsigned char*)(image.data);
-//	ushort *imagemAcertada = (unsigned short*)(imageAcertada.data);
-//	ushort *profundidade = (unsigned short*)(depthPure.data);
-//
-//
-//	NUI_COLOR_IMAGE_POINT* colorPoints = new NUI_COLOR_IMAGE_POINT[640 * 480]; //color points
-//    NUI_DEPTH_IMAGE_PIXEL* depthPoints = new NUI_DEPTH_IMAGE_PIXEL[640 * 480]; // depth pixel
-//
-//	pSensor->NuiGetCoordinateMapper(&pMapper);
-//
-//	pMapper->MapDepthFrameToColorFrame( NUI_IMAGE_RESOLUTION_640x480,
-//		                                640 * 480,
-//										depthPoints,
-//										NUI_IMAGE_TYPE_COLOR,
-//										NUI_IMAGE_RESOLUTION_640x480,
-//										640 * 480,
-//										colorPoints );
-//
-//	for (int i = 0; i < 640 * 480; i++)
-//		if (colorPoints[i].x >0 && colorPoints[i].x < 640 && colorPoints[i].y>0 &&    colorPoints[i].y < 480)
-//            *(imagemAcertada + colorPoints[i].x + colorPoints[i].y*640) = *(profundidade + i );
-//
-//	imshow("outlat", imageAcertada);
-//	delete colorPoints;
-//    delete depthPoints;
-//
-//}
+void preProcLandmarks(Mat &shapis){
 
+	int i = 0;
+	int n = shapeG.rows/2;
+	cv::Point p1;
+
+	for(int i=0; i<640*480; i++)
+		vetLandMarks[i] = 0;
+
+	for(i=0; i<n; i++){
+		p1 = cv::Point(shapeG.at<double>(i,0),shapeG.at<double>(i+n,0));
+		vetLandMarks[p1.y*shapis.cols+p1.x] = i;
+	}
+
+}
 
 void getLandmarks3D(Mat &pointCloud_XYZ, Mat &shapis){
 
@@ -395,31 +386,44 @@ void getLandmarks3D(Mat &pointCloud_XYZ, Mat &shapis){
 		
 	LONG colorX,colorY, antX, antY; //ponto na matriz onde esta determinada cor
 	int cont = 0;
+	int k=0;
 
 	for(int i=0; i<640*480; i++)
 		vet[i] = 0;
-
+	
 	for(y = 0;y < pointCloud_XYZ.rows;y++){
-		for(x = 0;x < pointCloud_XYZ.cols;x++,point++){				
-				
+		for(x = 0;x < pointCloud_XYZ.cols;x++,point++){					
 			NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
 			if(colorX!=NULL && colorY!=NULL){
-				if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){	
-					/*if(vet[colorY*shapis.cols+colorX]==1)
-						cout<<"ja passei aqui"<<endl;*/
+				if(0 <= colorX && colorX < shapis.cols && 0 <= colorY && colorY < shapis.rows){
+					
+					//if(p1.y==colorY && p1.x == colorX){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
 					if(shapis.at<uchar>(colorY,colorX) == 255 && vet[colorY*shapis.cols+colorX]!=1){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
+						int i = 0;
+						int n = shapeG.rows/2;
+						cv::Point p1;
+						p1 = cv::Point(shapeG.at<double>(i,0),shapeG.at<double>(i+n,0));
+					//if(vetLandMarks[colorY*image.cols+colorX] == 1 && vet[colorY*shapis.cols+colorX]!=1){//pego os pontos brancos da imagem de landmarks para criar os landmarks 3d
+						
+						k = vetLandMarks[colorY*shapis.cols+colorX];
 						vet[colorY*shapis.cols+colorX] = 1;
-						pShape.pX = point->x;
+						/*pShape.pX = point->x;
 						pShape.pY = point->y;
-						pShape.pZ = point->z;
-						pontosSh.push_back(pShape);
-						cont++;
+						pShape.pZ = point->z;*/
+						pontosSh[k].pX = point->x;
+						pontosSh[k].pY = point->y;
+						pontosSh[k].pZ = point->z;
+						//pontosSh.push_back(pShape);
+						//pontosSh.insert(pontosSh.begin()+k, pShape);
+						cont++;	
+						i++;
 					}
 				}
 			}
 		}
 	}
-	cout<<cont<<endl;
+	
+	//cout<<k<<endl;
 }
 
 void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax){
@@ -438,7 +442,8 @@ void getPointCloud3D(Mat &pointCloud_XYZ, Mat&rgbImage, float xMin, float xMax, 
 
 		for(y = 0;y < pointCloud_XYZ.rows;y++){
 			for(x = 0;x < pointCloud_XYZ.cols;x++,point++){				
-				
+		/*for(y = faceDim.y;y < faceDim.y+faceDim.height;y++){
+			for(x = faceDim.x;x < faceDim.x+faceDim.width;x++,point++){	*/
 				NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution(NUI_IMAGE_RESOLUTION_640x480,NUI_IMAGE_RESOLUTION_640x480,NULL,x,y,0,&colorX,&colorY); //tem como saida a linha e coluna de cor do pixel
 				
 				if(0 <= colorX && colorX <= rgbImage.cols && 0 <= colorY && colorY <= rgbImage.rows){ 
@@ -515,8 +520,10 @@ void display(){
 	//converte de BGR para RGB
     cvtColor(image,image,CV_RGBA2BGRA);
 
+	preProcLandmarks(imageDosLandmarks);
+
 	getLandmarks3D(pointCloud_XYZ, imageDosLandmarks);
-	if(pontosSh.size()>0)
+	//if(pontosSh.size()>0)
 		calcMinMaxValues(xMin, xMax, yMin, yMax, zMin, zMax);
 	//printf("\nFrame%d: %f, %f, %f, %f, %f, %f\n\n", pass,xMin, xMax, yMin, yMax, zMin, zMax);
 	getPointCloud3D(pointCloud_XYZ, image, xMin, xMax, yMin, yMax, zMin, zMax);
@@ -529,14 +536,15 @@ void display(){
 	}
   
 	pass++; //contador de frame
-	pontosSh.clear();
+	//pontosSh.clear();
 	pontosDe.clear();
 	imageDosLandmarks = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC1); //zero a matriz de landmarks para começar outro frame
 	imageAcertada = Mat::zeros(KINECT_DEPTH_HEIGHT,KINECT_DEPTH_WIDTH,CV_8UC4); //zero a matriz de landmarks para começar outro frame
+
     glFlush();
     glutSwapBuffers();
 	fim = clock();
-	//printf("Frame%d: %lf segundos\n",pass, ((double)(fim - inicio)/CLOCKS_PER_SEC));
+	printf("Frame%d: %lf segundos\n",pass, ((double)(fim - inicio)/CLOCKS_PER_SEC));
 }
 
 int init(){	
@@ -581,7 +589,7 @@ void reshape (int width, int height){
     glMatrixMode (GL_MODELVIEW);
 }
 
-//evento de movimentação do mouse
+//Callback de evento de movimentação do mouse
 void motion(int x, int y){
     int xDisp, yDisp;
     xDisp = x - xBegin;
@@ -603,7 +611,7 @@ void motion(int x, int y){
     yBegin = y;
 }
 
-//evento de clique do mouse
+//Callback de eventos do mouse
 void mouse(int button, int state, int x, int y){ 
     if (state == GLUT_DOWN) {
         switch(button) {
@@ -618,12 +626,23 @@ void mouse(int button, int state, int x, int y){
     }
 }
 
+//Callback de eventos de teclado
+void Teclado(unsigned char key, int x, int y) {
+
+    switch (key) {
+        case 27:
+            exit(0);
+            break;
+	}
+}
+
 int main(int argc, char *argv[]){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(FormWidth, FormHeight);
     glutCreateWindow(argv[0]);
     glutReshapeFunc (reshape);
+	glutKeyboardFunc(Teclado);
     glutDisplayFunc(display);
     glutIdleFunc(idle);
     glutMouseFunc(mouse);
